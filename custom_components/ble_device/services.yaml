@@ -1,0 +1,6 @@
+write_ble_value:
+  description: "Write a value to BLE device"
+  fields:
+    value:
+      description: "Integer value to write"
+      example: 42

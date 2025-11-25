@@ -1,0 +1,6 @@
+{
+    "name": "BLE Device Integration",
+    "content_in_root": false,
+    "domains": ["ble_device"],
+    "country": "all"
+}
