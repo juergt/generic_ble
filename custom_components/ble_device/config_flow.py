@@ -33,7 +33,7 @@ class BluetoothDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Schema([
                     {
                         vol.Required("uuid"): vol.In(char_map),
-                        vol.Optional("format", default="hex"): vol.In(["int", "string", "hex"])
+                        vol.Required("format", default="hex"): vol.In(["int", "string", "hex"])
                     }
                 ])
             ),
