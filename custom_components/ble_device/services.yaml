@@ -2,5 +2,8 @@ write_value:
   description: "Write a value to BLE characteristic"
   fields:
     value:
-      description: "Integer value to write"
-      example: 42
+      description: "Value to write (int, string, or hex bytes)"
+      example: "Hello"
+    format:
+      description: "Format of the value: int, string, hex"
+      example: "string"

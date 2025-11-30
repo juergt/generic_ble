@@ -1,16 +1,6 @@
-import logging
-from bleak import BleakClient
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.discovery import async_load_platform
-
-from .const import DOMAIN
-
-_LOGGER = logging.getLogger(__name__)
-
 async def async_setup_entry(hass: HomeAssistant, entry):
     address = entry.data["address"]
     char_uuid = entry.data["char_uuid"]
-    update_interval = entry.data.get("update_interval")
 
     client = BleakClient(address)
 
@@ -24,13 +14,24 @@ async def async_setup_entry(hass: HomeAssistant, entry):
 
     async def handle_write(call):
         value = call.data["value"]
-        await client.write_gatt_char(char_uuid, bytes([value]))
-        _LOGGER.info("Wrote %s to %s", value, char_uuid)
+        fmt = call.data.get("format", "string")
+
+        if fmt == "int":
+            payload = bytes([int(value)])
+        elif fmt == "hex":
+            # Accept hex string like "0A FF 1B"
+            payload = bytes.fromhex(value.replace(" ", ""))
+        else:  # default string
+            payload = value.encode("utf-8")
+
+        await client.write_gatt_char(char_uuid, payload)
+        _LOGGER.info("Wrote %s (%s) to %s", value, fmt, char_uuid)
 
     hass.services.async_register(DOMAIN, "write_value", handle_write)
 
+    # Load sensor platform
     hass.async_create_task(
-        async_load_platform(hass, "sensor", DOMAIN, {"char_uuid": char_uuid, "update_interval": update_interval}, entry)
+        async_load_platform(hass, "sensor", DOMAIN, {"char_uuid": char_uuid}, entry)
     )
 
     return True
