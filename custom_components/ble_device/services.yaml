@@ -1,5 +1,5 @@
-write_ble_value:
-  description: "Write a value to BLE device"
+write_value:
+  description: "Write a value to BLE characteristic"
   fields:
     value:
       description: "Integer value to write"

@@ -1,2 +1,2 @@
 DOMAIN = "ble_device"
-DEFAULT_PIN = "0000"
+DEFAULT_UPDATE_INTERVAL = 30  # in seconds

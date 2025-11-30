@@ -2,13 +2,9 @@
   "config": {
     "step": {
       "user": {
-        "title": "BLE Device Setup",
-        "description": "Enter BLE address, PIN, characteristic UUID, and update interval"
+        "title": "Bluetooth Device Setup",
+        "description": "Enter BLE address, service UUID, and characteristic UUID"
       }
-    },
-    "error": {
-      "pair_failed": "Pairing failed. Ensure the device is in pairing mode and PIN is correct.",
-      "cannot_connect": "Could not connect to the BLE device."
     }
   }
 }
