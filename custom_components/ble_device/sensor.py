@@ -1,7 +1,8 @@
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 import logging
-
+from bleak import BleakClient
+from bleak_retry_connector import establish_connection
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -9,6 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, entry, async_add_entities):
     data = hass.data[DOMAIN][entry.entry_id]
     client = data["client"]
+    address = data["address"]
     char_configs = data["char_configs"]
     update_interval = entry.data.get("update_interval", 30)
 
@@ -19,6 +21,13 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
         async def read_ble_value(uuid=uuid, fmt=fmt):
             try:
+                # Ensure connection
+                if not client.is_connected:
+                    _LOGGER.warning("Client disconnected, re-establishing before read...")
+                    new_client = await establish_connection(BleakClient(address), address, timeout=20.0, max_attempts=5)
+                    hass.data[DOMAIN][entry.entry_id]["client"] = new_client
+                    client = new_client
+
                 raw = await client.read_gatt_char(uuid)
                 if fmt == "int":
                     return int.from_bytes(raw, byteorder="little")

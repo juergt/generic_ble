@@ -46,4 +46,8 @@ class BluetoothDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data={
                     "address": address,
                     "char_configs": user_input["char_configs"],
-                    "update_interval": user_input.get
+                    "update_interval": user_input.get("update_interval", DEFAULT_UPDATE_INTERVAL),
+                },
+            )
+
+        return self.async_show_form(step_id="service", data_schema=schema)
