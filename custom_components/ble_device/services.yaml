@@ -5,8 +5,8 @@ write_value:
       description: "Characteristic UUID to write to"
       example: "00002a19-0000-1000-8000-00805f9b34fb"
     value:
-      description: "Value to write (int, string, or hex)"
-      example: "Hello"
+      description: "Value to write"
+      example: "42"
     format:
-      description: "Format of the value: int, string, hex"
-      example: "string"
+      description: "Required format (int, string, hex)"
+      example: "int"
