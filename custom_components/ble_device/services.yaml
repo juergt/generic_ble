@@ -1,8 +1,11 @@
 write_value:
-  description: "Write a value to BLE characteristic"
+  description: "Write a value to a BLE characteristic"
   fields:
+    char_uuid:
+      description: "Characteristic UUID to write to"
+      example: "00002a19-0000-1000-8000-00805f9b34fb"
     value:
-      description: "Value to write (int, string, or hex bytes)"
+      description: "Value to write (int, string, or hex)"
       example: "Hello"
     format:
       description: "Format of the value: int, string, hex"
