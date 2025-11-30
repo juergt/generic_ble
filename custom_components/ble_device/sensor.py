@@ -2,17 +2,20 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 import logging
 
+from .const import DOMAIN
+
 _LOGGER = logging.getLogger(__name__)
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    client = hass.data["bluetooth_device"]
-    char_uuid = discovery_info["char_uuid"]
-    update_interval = discovery_info.get("update_interval", 30)
+async def async_setup_entry(hass, entry, async_add_entities):
+    data = hass.data[DOMAIN][entry.entry_id]
+    client = data["client"]
+    char_uuid = data["char_uuid"]
+    update_interval = entry.data.get("update_interval", 30)
 
     async def read_ble_value():
         try:
             data = await client.read_gatt_char(char_uuid)
-            return int.from_bytes(data, byteorder="little")
+            return data.hex()  # return hex string by default
         except Exception as e:
             raise UpdateFailed(f"BLE read failed: {e}")
 
