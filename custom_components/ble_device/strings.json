@@ -1,9 +1,50 @@
 {
+  "title": "Bluetooth Device Integration",
   "config": {
     "step": {
       "user": {
-        "title": "Bluetooth Device Setup",
-        "description": "Enter BLE address, service UUID, and characteristic UUID"
+        "title": "Select Bluetooth device",
+        "description": "Scan nearby BLE devices and choose one",
+        "data": {
+          "address": "Device address"
+        }
+      },
+      "service": {
+        "title": "Select characteristics and formats",
+        "description": "Choose one or more characteristics and set a format (int, string, hex) for each",
+        "data": {
+          "char_configs": "Characteristics",
+          "update_interval": "Update interval (seconds)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "bluetooth_device": {
+        "name": "BLE characteristic",
+        "state": {
+        }
+      }
+    }
+  },
+  "services": {
+    "write_value": {
+      "name": "Write value",
+      "description": "Write a value to a BLE characteristic",
+      "fields": {
+        "char_uuid": {
+          "name": "Characteristic UUID",
+          "description": "Characteristic UUID to write to"
+        },
+        "value": {
+          "name": "Value",
+          "description": "Value to write"
+        },
+        "format": {
+          "name": "Format",
+          "description": "Required format (int, string, hex)"
+        }
       }
     }
   }

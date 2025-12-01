@@ -4,6 +4,7 @@ from bleak_retry_connector import establish_connection
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from .const import DOMAIN
+from .backoff import reconnect_with_backoff
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -11,7 +12,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     address = entry.data["address"]
     char_configs = entry.data["char_configs"]
 
-    # Reliable initial connection
     client = await establish_connection(
         BleakClient(address),
         address,
@@ -34,25 +34,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         value = call.data["value"]
         fmt = call.data.get("format")
 
-        # Lookup default format
-        char_configs = hass.data[DOMAIN][entry.entry_id]["char_configs"]
-        default_fmt = next((cfg["format"] for cfg in char_configs if cfg["uuid"] == char_uuid), "hex")
-        fmt = fmt or default_fmt
+        if fmt is None:
+            raise ValueError("You must specify 'format' (int, string, hex) in the service call")
 
-        # Ensure connection
         client = hass.data[DOMAIN][entry.entry_id]["client"]
         if not client.is_connected:
-            _LOGGER.warning("Client disconnected, re-establishing before write...")
-            client = await establish_connection(BleakClient(address), address, timeout=20.0, max_attempts=5)
+            _LOGGER.warning("Client disconnected, trying backoff reconnect before write...")
+            client = await reconnect_with_backoff(address)
             hass.data[DOMAIN][entry.entry_id]["client"] = client
 
-        # Encode payload
         if fmt == "int":
             payload = bytes([int(value)])
         elif fmt == "hex":
             payload = bytes.fromhex(value.replace(" ", ""))
-        else:
+        elif fmt == "string":
             payload = value.encode("utf-8")
+        else:
+            raise ValueError(f"Unsupported format: {fmt}")
 
         await client.write_gatt_char(char_uuid, payload)
         _LOGGER.info("Wrote %s (%s) to %s", value, fmt, char_uuid)
@@ -63,7 +61,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
-    """Cleanup when integration is removed/unloaded."""
     data = hass.data[DOMAIN].pop(entry.entry_id, None)
     if data:
         client: BleakClient = data["client"]

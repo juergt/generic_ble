@@ -27,7 +27,6 @@ class BluetoothDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 for char in service.characteristics:
                     char_map[char.uuid] = f"{service.uuid} / {char.uuid}"
 
-        # Let user select multiple characteristics and formats
         schema = vol.Schema({
             vol.Required("char_configs", default=[]): vol.All(
                 vol.Schema([
